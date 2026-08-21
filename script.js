@@ -9,27 +9,34 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
 
-        // --------------------------------------------
+        // ========================================
         // GET ALL DATA FROM SUPABASE
-        // --------------------------------------------
+        // ========================================
 
         const data = await getAllPortfolioData();
 
         console.log("🔥 SUPABASE PORTFOLIO DATA");
         console.log(data);
 
-        // --------------------------------------------
+
+        // ========================================
         // RENDER ALL SECTIONS
-        // --------------------------------------------
+        // ========================================
 
         renderMetadata(data.metadata);
+
+        renderConnectWithMe(data.metadata);
+
         renderEducation(data.education);
+
         renderProjects(data.projects);
+
         renderCertificates(data.certificates);
 
-        // --------------------------------------------
+
+        // ========================================
         // FINISH LOADING
-        // --------------------------------------------
+        // ========================================
 
         hideLoader();
 
@@ -43,17 +50,72 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     }
 
+
+    // ========================================
+    // THEME
+    // ========================================
+
+    initializeTheme();
+
 });
+
+
+// ==================================================
+// GET VALUE FROM OBJECT
+// Handles different column name formats
+// ==================================================
+
+function getValue(obj, possibleNames) {
+
+    if (!obj || typeof obj !== "object") {
+        return "";
+    }
+
+    for (const name of possibleNames) {
+
+        if (
+            obj[name] !== undefined &&
+            obj[name] !== null &&
+            String(obj[name]).trim() !== ""
+        ) {
+            return obj[name];
+        }
+
+    }
+
+
+    // Case-insensitive fallback
+
+    const keys = Object.keys(obj);
+
+    for (const name of possibleNames) {
+
+        const foundKey = keys.find(
+            key =>
+                key.toLowerCase().trim() ===
+                name.toLowerCase().trim()
+        );
+
+        if (
+            foundKey &&
+            obj[foundKey] !== null &&
+            obj[foundKey] !== undefined &&
+            String(obj[foundKey]).trim() !== ""
+        ) {
+            return obj[foundKey];
+        }
+
+    }
+
+    return "";
+}
+
 
 // ==================================================
 // METADATA
 // ==================================================
 
 function renderMetadata(data) {
-
-    // --------------------------------------------------
-    // CHECK DATA
-    // --------------------------------------------------
 
     if (!Array.isArray(data) || data.length === 0) {
 
@@ -63,323 +125,200 @@ function renderMetadata(data) {
     }
 
 
-    // --------------------------------------------------
-    // GET FIRST RECORD
-    // --------------------------------------------------
-
     const person = data[0];
 
     console.log("👤 Portfolio Metadata:", person);
 
 
-    // ==================================================
+    // ========================================
     // NAME
-    // ==================================================
+    // ========================================
 
-    const fullName =
-        person.Full_Name ||
-        "";
+    const fullName = getValue(person, [
+        "Full_Name",
+        "full_name",
+        "FullName",
+        "name",
+        "Name"
+    ]);
 
-    setText(
-        "profile-name",
-        fullName
-    );
-
-    setText(
-        "hero-name",
-        fullName
-    );
-
-    setText(
-        "about-name",
-        fullName
-    );
-
-    setText(
-        "terminal-name",
-        fullName
-    );
-
-    setText(
-        "footer-name",
-        fullName
-    );
-
-    setText(
-        "logo-name",
-        fullName
-    );
+    setText("profile-name", fullName);
+    setText("hero-name", fullName);
+    setText("about-name", fullName);
+    setText("terminal-name", fullName);
+    setText("footer-name", fullName);
+    setText("logo-name", fullName);
 
 
-    // ==================================================
+    // ========================================
     // HEADLINE
-    // ==================================================
+    // ========================================
 
-    setText(
-        "hero-headline",
-        person.Headline || ""
-    );
+    const headline = getValue(person, [
+        "Headline",
+        "headline",
+        "Title",
+        "title"
+    ]);
+
+    setText("hero-headline", headline);
 
 
-    // ==================================================
+    // ========================================
     // BIO
-    // ==================================================
+    // ========================================
 
-    setText(
-        "profile-bio",
-        person.Bio || ""
-    );
+    const bio = getValue(person, [
+        "Bio",
+        "bio",
+        "About",
+        "about",
+        "description"
+    ]);
 
-    setText(
-        "hero-bio",
-        person.Bio || ""
-    );
-
-    setText(
-        "about-bio",
-        person.Bio || ""
-    );
+    setText("profile-bio", bio);
+    setText("hero-bio", bio);
+    setText("about-bio", bio);
 
 
-    // ==================================================
+    // ========================================
     // EMAIL
-    // ==================================================
+    // ========================================
 
-    const email =
-        person.Email ||
-        "";
+    const email = getValue(person, [
+        "Email",
+        "email",
+        "Email_Address",
+        "email_address"
+    ]);
 
-    setText(
-        "profile-email",
-        email
-    );
-
-    setText(
-        "about-email",
-        email
-    );
+    setText("profile-email", email);
+    setText("about-email", email);
 
 
-    // ==================================================
+    // ========================================
     // MOBILE
-    // ==================================================
+    // ========================================
 
-    setText(
-        "about-mobile",
-        person.Mobile || ""
-    );
+    const mobile = getValue(person, [
+        "Mobile",
+        "mobile",
+        "Phone",
+        "phone",
+        "Phone_Number",
+        "phone_number"
+    ]);
 
-
-    // ==================================================
-    // LOCATION
-    // ==================================================
-
-    const city =
-        person.City ||
-        "";
-
-    setText(
-        "profile-location",
-        city
-    );
-
-    setText(
-        "about-city",
-        city
-    );
-
-    setText(
-        "terminal-city",
-        city
-    );
+    setText("about-mobile", mobile);
 
 
-    // ==================================================
+    // ========================================
+    // CITY
+    // ========================================
+
+    const city = getValue(person, [
+        "City",
+        "city",
+        "Location",
+        "location"
+    ]);
+
+    setText("profile-location", city);
+    setText("about-city", city);
+    setText("terminal-city", city);
+
+
+    // ========================================
     // DATE OF BIRTH
-    // ==================================================
+    // ========================================
 
-    if (person.Date_Of_Birth) {
+    const dob = getValue(person, [
+        "Date_Of_Birth",
+        "date_of_birth",
+        "DOB",
+        "dob"
+    ]);
 
-        let formattedDOB =
-            person.Date_Of_Birth;
-
-        try {
-
-            const dob =
-                String(
-                    person.Date_Of_Birth
-                ).trim();
-
-
-            // ------------------------------------------
-            // DD-MM-YYYY
-            // Example: 01-06-2007
-            // ------------------------------------------
-
-            if (
-                /^\d{2}-\d{2}-\d{4}$/.test(dob)
-            ) {
-
-                const parts =
-                    dob.split("-");
-
-                const day =
-                    Number(parts[0]);
-
-                const month =
-                    Number(parts[1]);
-
-                const year =
-                    Number(parts[2]);
-
-
-                const date =
-                    new Date(
-                        year,
-                        month - 1,
-                        day
-                    );
-
-
-                if (!isNaN(date.getTime())) {
-
-                    formattedDOB =
-                        date.toLocaleDateString(
-                            "en-GB",
-                            {
-                                day: "2-digit",
-                                month: "long",
-                                year: "numeric"
-                            }
-                        );
-
-                }
-
-            }
-
-            // ------------------------------------------
-            // YYYY-MM-DD
-            // ------------------------------------------
-
-            else if (
-                /^\d{4}-\d{2}-\d{2}$/.test(dob)
-            ) {
-
-                const parts =
-                    dob.split("-");
-
-                const year =
-                    Number(parts[0]);
-
-                const month =
-                    Number(parts[1]);
-
-                const day =
-                    Number(parts[2]);
-
-
-                const date =
-                    new Date(
-                        year,
-                        month - 1,
-                        day
-                    );
-
-
-                if (!isNaN(date.getTime())) {
-
-                    formattedDOB =
-                        date.toLocaleDateString(
-                            "en-GB",
-                            {
-                                day: "2-digit",
-                                month: "long",
-                                year: "numeric"
-                            }
-                        );
-
-                }
-
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "⚠️ Could not format Date of Birth:",
-                error
-            );
-
-        }
-
+    if (dob) {
 
         setText(
             "about-year",
-            formattedDOB
+            formatDate(dob)
         );
 
     }
 
 
-    // ==================================================
+    // ========================================
     // GITHUB
-    // ==================================================
+    // ========================================
 
-    if (person.Github) {
+    const github = getValue(person, [
+        "Github",
+        "GitHub",
+        "github",
+        "github_url",
+        "Github_URL",
+        "GitHub_URL"
+    ]);
 
-        setLink(
-            "github-link",
-            person.Github
-        );
+    if (github) {
 
-        setLink(
-            "github-button",
-            person.Github
-        );
+        setLink("github-link", github);
+        setLink("github-button", github);
+
+        setLink("connect-github", github);
+        setLink("github-connect", github);
 
     }
 
 
-    // ==================================================
+    // ========================================
     // LINKEDIN
-    // ==================================================
+    // ========================================
 
-    if (person.LinkedIn) {
+    const linkedin = getValue(person, [
+        "LinkedIn",
+        "linkedin",
+        "linkedin_url",
+        "LinkedIn_URL"
+    ]);
 
-        setLink(
-            "linkedin-link",
-            person.LinkedIn
-        );
+    if (linkedin) {
 
-        setLink(
-            "linkedin-button",
-            person.LinkedIn
-        );
+        setLink("linkedin-link", linkedin);
+        setLink("linkedin-button", linkedin);
+
+        setLink("connect-linkedin", linkedin);
+        setLink("linkedin-connect", linkedin);
 
     }
 
 
-    // ==================================================
+    // ========================================
     // RESUME
-    // ==================================================
+    // ========================================
 
-    if (person.Resume_Link) {
+    const resume = getValue(person, [
+        "Resume_Link",
+        "resume_link",
+        "Resume",
+        "resume",
+        "Resume_URL",
+        "resume_url"
+    ]);
 
-        setLink(
-            "resume-link",
-            person.Resume_Link
-        );
+    if (resume) {
 
-        console.log(
-            "📄 Resume Link:",
-            person.Resume_Link
-        );
+        setLink("resume-link", resume);
+        setLink("resume-button", resume);
 
     }
 
 
-    // ==================================================
+    // ========================================
     // EMAIL BUTTON
-    // ==================================================
+    // ========================================
 
     if (email) {
 
@@ -388,83 +327,197 @@ function renderMetadata(data) {
             `mailto:${email}`
         );
 
-    }
-
-
-    // ==================================================
-    // FOOTER YEAR
-    // ==================================================
-
-    const footerYear =
-        document.getElementById(
-            "footer-year"
+        setLink(
+            "connect-email",
+            `mailto:${email}`
         );
 
-    if (footerYear) {
-
-        footerYear.textContent =
-            new Date().getFullYear();
+        setLink(
+            "email-connect",
+            `mailto:${email}`
+        );
 
     }
 
 
-    // ==================================================
-    // DEBUG
-    // ==================================================
+    // ========================================
+    // FOOTER YEAR
+    // ========================================
 
-    console.log(
-        "================================"
+    setText(
+        "footer-year",
+        new Date().getFullYear()
     );
 
-    console.log(
-        "✅ METADATA RENDERED"
-    );
 
-    console.log(
-        "👤 Name:",
-        fullName
-    );
-
-    console.log(
-        "📧 Email:",
-        email
-    );
-
-    console.log(
-        "📱 Mobile:",
-        person.Mobile
-    );
-
-    console.log(
-        "📍 City:",
-        city
-    );
-
-    console.log(
-        "🎂 Date of Birth:",
-        person.Date_Of_Birth
-    );
-
-    console.log(
-        "💻 GitHub:",
-        person.Github
-    );
-
-    console.log(
-        "🔗 LinkedIn:",
-        person.LinkedIn
-    );
-
-    console.log(
-        "📄 Resume:",
-        person.Resume_Link
-    );
-
-    console.log(
-        "================================"
-    );
+    console.log("================================");
+    console.log("✅ METADATA RENDERED");
+    console.log("👤 Name:", fullName);
+    console.log("📧 Email:", email);
+    console.log("📱 Mobile:", mobile);
+    console.log("📍 City:", city);
+    console.log("🎂 DOB:", dob);
+    console.log("💻 GitHub:", github);
+    console.log("🔗 LinkedIn:", linkedin);
+    console.log("📄 Resume:", resume);
+    console.log("================================");
 
 }
+
+
+// ==================================================
+// CONNECT WITH ME
+// ==================================================
+
+function renderConnectWithMe(data) {
+
+    if (!Array.isArray(data) || data.length === 0) {
+
+        console.warn(
+            "⚠️ No metadata available for Connect With Me"
+        );
+
+        return;
+    }
+
+
+    const person = data[0];
+
+
+    // ========================================
+    // GET SOCIAL DATA
+    // ========================================
+
+    const email = getValue(person, [
+        "Email",
+        "email",
+        "Email_Address",
+        "email_address"
+    ]);
+
+
+    const github = getValue(person, [
+        "Github",
+        "GitHub",
+        "github",
+        "github_url",
+        "Github_URL",
+        "GitHub_URL"
+    ]);
+
+
+    const linkedin = getValue(person, [
+        "LinkedIn",
+        "linkedin",
+        "linkedin_url",
+        "LinkedIn_URL"
+    ]);
+
+
+    const resume = getValue(person, [
+        "Resume_Link",
+        "resume_link",
+        "Resume",
+        "resume",
+        "Resume_URL",
+        "resume_url"
+    ]);
+
+
+    // ========================================
+    // EMAIL
+    // ========================================
+
+    if (email) {
+
+        const emailElements = document.querySelectorAll(
+            "#email-button, #connect-email, #email-connect, [data-social='email']"
+        );
+
+        emailElements.forEach(element => {
+
+            element.href = `mailto:${email}`;
+
+            if (element.tagName === "A") {
+                element.target = "_self";
+            }
+
+        });
+
+    }
+
+
+    // ========================================
+    // GITHUB
+    // ========================================
+
+    if (github) {
+
+        const githubElements = document.querySelectorAll(
+            "#github-link, #github-button, #connect-github, #github-connect, [data-social='github']"
+        );
+
+        githubElements.forEach(element => {
+
+            element.href = github;
+
+            element.target = "_blank";
+            element.rel = "noopener noreferrer";
+
+        });
+
+    }
+
+
+    // ========================================
+    // LINKEDIN
+    // ========================================
+
+    if (linkedin) {
+
+        const linkedinElements = document.querySelectorAll(
+            "#linkedin-link, #linkedin-button, #connect-linkedin, #linkedin-connect, [data-social='linkedin']"
+        );
+
+        linkedinElements.forEach(element => {
+
+            element.href = linkedin;
+
+            element.target = "_blank";
+            element.rel = "noopener noreferrer";
+
+        });
+
+    }
+
+
+    // ========================================
+    // RESUME
+    // ========================================
+
+    if (resume) {
+
+        const resumeElements = document.querySelectorAll(
+            "#resume-link, #resume-button, [data-social='resume']"
+        );
+
+        resumeElements.forEach(element => {
+
+            element.href = resume;
+
+            element.target = "_blank";
+            element.rel = "noopener noreferrer";
+
+        });
+
+    }
+
+
+    console.log("🔗 CONNECT WITH ME RENDERED");
+
+}
+
+
 // ==================================================
 // EDUCATION
 // ==================================================
@@ -472,16 +525,25 @@ function renderMetadata(data) {
 function renderEducation(data) {
 
     const container =
-        document.getElementById("education-container");
+        document.getElementById(
+            "education-container"
+        );
+
 
     if (!container) {
-        console.warn("⚠️ education-container not found");
+
+        console.warn(
+            "⚠️ education-container not found"
+        );
+
         return;
     }
 
+
     container.innerHTML = "";
 
-    if (!data || data.length === 0) {
+
+    if (!Array.isArray(data) || data.length === 0) {
 
         container.innerHTML = `
             <div class="empty-state">
@@ -492,90 +554,179 @@ function renderEducation(data) {
         return;
     }
 
-    data.forEach((education) => {
 
-        const card = document.createElement("div");
+    data.forEach((education, index) => {
 
-        card.className = "education-card";
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "education-card";
+
+
+        // ========================================
+        // EDUCATION VALUES
+        // ========================================
+
+        const year = getValue(education, [
+            "year_of_completion",
+            "Year_of_Completion",
+            "year",
+            "Year",
+            "completion_year"
+        ]);
+
+
+        const course = getValue(education, [
+            "Course_title",
+            "course_title",
+            "Course_Title",
+            "course",
+            "Course",
+            "Degree",
+            "degree"
+        ]);
+
+
+        const institute = getValue(education, [
+            "Institute_Name",
+            "institute_name",
+            "Institute",
+            "institute",
+            "College",
+            "college",
+            "University",
+            "university"
+        ]);
+
+
+        const specialization = getValue(education, [
+            "Specialization",
+            "specialization",
+            "Branch",
+            "branch",
+            "Stream",
+            "stream"
+        ]);
+
+
+        const duration = getValue(education, [
+            "Course_Duration",
+            "course_duration",
+            "Duration",
+            "duration"
+        ]);
+
+
+        const score = getValue(education, [
+            "CGPA/CGPI/CPI",
+            "CGPA",
+            "CGPI",
+            "CPI",
+            "cgpa",
+            "cgpi",
+            "cpi"
+        ]);
+
+
+        // ========================================
+        // CARD
+        // ========================================
 
         card.innerHTML = `
 
-            <div class="education-year">
-                ${escapeHTML(
-                    education.year_of_completion || ""
-                )}
-            </div>
+            ${
+                year
+                    ? `
+                        <div class="education-year">
+                            ${escapeHTML(year)}
+                        </div>
+                    `
+                    : ""
+            }
+
 
             <div class="education-content">
 
-                <!-- COURSE TITLE -->
                 <h3 class="education-title">
                     ${escapeHTML(
-                        education.Course_title ||
-                        "Education"
+                        course || "Education"
                     )}
                 </h3>
 
-                <!-- INSTITUTE -->
-                <h4 class="education-institute">
-                    ${escapeHTML(
-                        education.Institute_Name ||
-                        ""
-                    )}
-                </h4>
 
-                <!-- SPECIALIZATION -->
                 ${
-                    education.Specialization
-                    ? `
-                        <p class="education-specialization">
-                            ${escapeHTML(
-                                education.Specialization
-                            )}
-                        </p>
-                    `
-                    : ""
+                    institute
+                        ? `
+                            <h4 class="education-institute">
+                                ${escapeHTML(institute)}
+                            </h4>
+                        `
+                        : ""
                 }
 
-                <!-- COURSE DURATION -->
+
                 ${
-                    education.Course_Duration
-                    ? `
-                        <p class="education-duration">
-                            Duration:
-                            <span>
+                    specialization
+                        ? `
+                            <p class="education-specialization">
                                 ${escapeHTML(
-                                    education.Course_Duration
+                                    specialization
                                 )}
-                            </span>
-                        </p>
-                    `
-                    : ""
+                            </p>
+                        `
+                        : ""
                 }
 
-                <!-- CGPA -->
+
                 ${
-                    education["CGPA/CGPI/CPI"]
-                    ? `
-                        <span class="education-score">
-                            CGPA/CGPI/CPI:
-                            ${escapeHTML(
-                                education["CGPA/CGPI/CPI"]
-                            )}
-                        </span>
-                    `
-                    : ""
+                    duration
+                        ? `
+                            <p class="education-duration">
+                                Duration:
+                                <span>
+                                    ${escapeHTML(duration)}
+                                </span>
+                            </p>
+                        `
+                        : ""
+                }
+
+
+                ${
+                    score
+                        ? `
+                            <span class="education-score">
+                                CGPA/CGPI/CPI:
+                                ${escapeHTML(score)}
+                            </span>
+                        `
+                        : ""
                 }
 
             </div>
 
         `;
 
+
         container.appendChild(card);
+
+
+        console.log(
+            `🎓 Education ${index + 1}:`,
+            education
+        );
 
     });
 
+
+    console.log(
+        `✅ ${data.length} education record(s) rendered`
+    );
+
 }
+
 
 // ==================================================
 // PROJECTS
@@ -584,18 +735,25 @@ function renderEducation(data) {
 function renderProjects(data) {
 
     const container =
-        document.getElementById("projects-container");
+        document.getElementById(
+            "projects-container"
+        );
+
 
     if (!container) {
-        console.warn("⚠️ projects-container not found");
+
+        console.warn(
+            "⚠️ projects-container not found"
+        );
+
         return;
     }
 
-    // Clear old content
+
     container.innerHTML = "";
 
-    // No projects
-    if (!data || data.length === 0) {
+
+    if (!Array.isArray(data) || data.length === 0) {
 
         container.innerHTML = `
             <div class="empty-state">
@@ -607,70 +765,112 @@ function renderProjects(data) {
     }
 
 
-    // ==================================================
-    // RENDER EACH PROJECT
-    // ==================================================
-
-    data.forEach((project) => {
+    data.forEach((project, index) => {
 
         const card =
             document.createElement("article");
 
-        card.className = "project-card";
+
+        card.className =
+            "project-card";
 
 
-        // ==================================================
-        // PROJECT LINK
-        // Supabase column = Project_Link
-        // ==================================================
+        // ========================================
+        // PROJECT VALUES
+        // ========================================
 
-        const projectURL =
-            project.Project_Link
-                ? String(project.Project_Link).trim()
-                : "";
-
-
-        console.log(
-            "🚀 Project:",
-            project.Title
-        );
-
-        console.log(
-            "🔗 Project URL:",
-            projectURL
-        );
+        const id = getValue(project, [
+            "id",
+            "ID"
+        ]);
 
 
-        // ==================================================
+        const title = getValue(project, [
+            "Title",
+            "title",
+            "Project_Title",
+            "project_title"
+        ]);
+
+
+        const description = getValue(project, [
+            "Description",
+            "description"
+        ]);
+
+
+        const year = getValue(project, [
+            "year_of_project",
+            "Year_of_Project",
+            "year",
+            "Year"
+        ]);
+
+
+        const skills = getValue(project, [
+            "skills_tech",
+            "Skills_Tech",
+            "skills",
+            "Skills",
+            "technologies"
+        ]);
+
+
+        const projectURL = getValue(project, [
+            "Project_Link",
+            "project_link",
+            "project_url",
+            "Project_URL"
+        ]);
+
+
+        const githubURL = getValue(project, [
+            "github_link",
+            "Github_Link",
+            "GitHub_Link",
+            "github",
+            "Github"
+        ]);
+
+
+        const team = getValue(project, [
+            "project_drone_under",
+            "Project_Drone_Under",
+            "team",
+            "Team"
+        ]);
+
+
+        // ========================================
         // SKILLS
-        // ==================================================
+        // ========================================
 
         let skillsHTML = "";
 
-        if (project.skills_tech) {
 
-            const skills =
-                String(project.skills_tech)
+        if (skills) {
+
+            skillsHTML =
+                String(skills)
                     .split(",")
                     .map(skill => skill.trim())
-                    .filter(Boolean);
-
-            skillsHTML = skills
-                .map(skill => `
-                    <span class="project-tech">
-                        ${escapeHTML(skill)}
-                    </span>
-                `)
-                .join("");
+                    .filter(Boolean)
+                    .map(skill => `
+                        <span class="project-tech">
+                            ${escapeHTML(skill)}
+                        </span>
+                    `)
+                    .join("");
 
         }
 
 
-        // ==================================================
-        // PROJECT LINK BUTTON
-        // ==================================================
+        // ========================================
+        // PROJECT LINK
+        // ========================================
 
         let projectLinkHTML = "";
+
 
         if (projectURL) {
 
@@ -688,16 +888,14 @@ function renderProjects(data) {
         }
 
 
-        // ==================================================
+        // ========================================
         // GITHUB LINK
-        // ==================================================
+        // ========================================
 
         let githubHTML = "";
 
-        if (project.github_link) {
 
-            const githubURL =
-                String(project.github_link).trim();
+        if (githubURL) {
 
             githubHTML = `
                 <a
@@ -713,80 +911,71 @@ function renderProjects(data) {
         }
 
 
-        // ==================================================
-        // PROJECT CARD HTML
-        // ==================================================
+        // ========================================
+        // CARD HTML
+        // ========================================
 
         card.innerHTML = `
 
             <div class="project-number">
                 ${String(
-                    project.id || ""
+                    id || index + 1
                 ).padStart(2, "0")}
             </div>
 
 
             <div class="project-content">
 
-
-                <!-- YEAR -->
-
-                <div class="project-top">
-
-                    <span class="project-year">
-                        ${escapeHTML(
-                            project.year_of_project || ""
-                        )}
-                    </span>
-
-                </div>
-
-
-                <!-- TITLE -->
-
-                <h3>
-                    ${escapeHTML(
-                        project.Title ||
-                        "Untitled Project"
-                    )}
-                </h3>
-
-
-                <!-- DESCRIPTION -->
-
-                <p>
-                    ${escapeHTML(
-                        project.Description ||
-                        "No description available."
-                    )}
-                </p>
-
-
-                <!-- TECHNOLOGIES -->
-
-                <div class="project-tech-stack">
-
-                    ${skillsHTML}
-
-                </div>
-
-
-                <!-- PROJECT TEAM -->
-
                 ${
-                    project.project_drone_under
+                    year
                         ? `
-                            <div class="project-team">
-                                ${escapeHTML(
-                                    project.project_drone_under
-                                )}
+                            <div class="project-top">
+                                <span class="project-year">
+                                    ${escapeHTML(year)}
+                                </span>
                             </div>
                         `
                         : ""
                 }
 
 
-                <!-- ACTION BUTTONS -->
+                <h3>
+                    ${escapeHTML(
+                        title ||
+                        "Untitled Project"
+                    )}
+                </h3>
+
+
+                <p>
+                    ${escapeHTML(
+                        description ||
+                        "No description available."
+                    )}
+                </p>
+
+
+                ${
+                    skillsHTML
+                        ? `
+                            <div class="project-tech-stack">
+                                ${skillsHTML}
+                            </div>
+                        `
+                        : ""
+                }
+
+
+                ${
+                    team
+                        ? `
+                            <div class="project-team">
+                                ${escapeHTML(team)}
+                            </div>
+                        `
+                        : ""
+                }
+
 
                 <div class="project-actions">
 
@@ -796,15 +985,14 @@ function renderProjects(data) {
 
                 </div>
 
-
             </div>
 
         `;
 
 
-        // ==================================================
-        // DOUBLE CLICK → OPEN PROJECT
-        // ==================================================
+        // ========================================
+        // DOUBLE CLICK
+        // ========================================
 
         if (projectURL) {
 
@@ -815,16 +1003,6 @@ function renderProjects(data) {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    console.log(
-                        "🖱️ PROJECT DOUBLE CLICKED"
-                    );
-
-                    console.log(
-                        "🔗 Opening:",
-                        projectURL
-                    );
-
-
                     window.open(
                         projectURL,
                         "_blank"
@@ -834,22 +1012,14 @@ function renderProjects(data) {
             );
 
 
-            // Show pointer cursor
-
-            card.style.cursor = "pointer";
-
-
-            // Tooltip
+            card.style.cursor =
+                "pointer";
 
             card.title =
                 "Double-click to open project";
 
         }
 
-
-        // ==================================================
-        // ADD CARD
-        // ==================================================
 
         container.appendChild(card);
 
@@ -861,6 +1031,8 @@ function renderProjects(data) {
     );
 
 }
+
+
 // ==================================================
 // CERTIFICATES
 // ==================================================
@@ -868,18 +1040,25 @@ function renderProjects(data) {
 function renderCertificates(data) {
 
     const container =
-        document.getElementById("certificates-container");
+        document.getElementById(
+            "certificates-container"
+        );
+
 
     if (!container) {
-        console.warn("⚠️ certificates-container not found");
+
+        console.warn(
+            "⚠️ certificates-container not found"
+        );
+
         return;
     }
 
-    // Clear existing content
+
     container.innerHTML = "";
 
-    // No certificates
-    if (!data || data.length === 0) {
+
+    if (!Array.isArray(data) || data.length === 0) {
 
         container.innerHTML = `
             <div class="empty-state">
@@ -891,54 +1070,92 @@ function renderCertificates(data) {
     }
 
 
-    // ==================================================
-    // CREATE CERTIFICATE CARDS
-    // ==================================================
-
-    data.forEach((certificate) => {
+    data.forEach((certificate, index) => {
 
         const card =
             document.createElement("div");
 
-        card.className = "certificate-card";
+
+        card.className =
+            "certificate-card";
 
 
-        // ==================================================
-        // GET CERTIFICATE DATA
-        // ==================================================
+        // ========================================
+        // CERTIFICATE VALUES
+        // ========================================
 
         const certificateName =
-            certificate.Certification_Name ||
+            getValue(certificate, [
+                "Certification_Name",
+                "certification_name",
+                "Certificate_Name",
+                "certificate_name",
+                "Title",
+                "title",
+                "Name",
+                "name"
+            ]) ||
             "Certificate";
 
-        const issuingOrganization =
-            certificate.Issuing_Organization ||
-            "";
+
+        const organization =
+            getValue(certificate, [
+                "Issuing_Organization",
+                "issuing_organization",
+                "Organization",
+                "organization",
+                "Issuer",
+                "issuer"
+            ]);
+
 
         const issueDate =
-            certificate.Issue_Date ||
-            "";
+            getValue(certificate, [
+                "Issue_Date",
+                "issue_date",
+                "IssueDate",
+                "issueDate",
+                "Year",
+                "year"
+            ]);
 
-        // IMPORTANT:
-        // Your actual column name is:
-        // "certificate link"
-        //
-        // Because there is a space, we MUST use:
-        // certificate["certificate link"]
+
+        // ========================================
+        // CERTIFICATE LINK
+        // ========================================
 
         const certificateURL =
-            certificate["certificate link"]
-                ? String(
-                    certificate["certificate link"]
-                  ).trim()
-                : "";
+            getValue(certificate, [
+                "certificate link",
+                "certificate_link",
+                "Certificate_Link",
+                "Certificate_URL",
+                "certificate_url",
+                "Certificate_Link_URL",
+                "URL",
+                "url",
+                "Link",
+                "link"
+            ]);
 
 
-        // Debug
         console.log(
             "📜 Certificate:",
             certificateName
         );
+
+
+        console.log(
+            "🏢 Organization:",
+            organization
+        );
+
+
+        console.log(
+            "📅 Issue Date:",
+            issueDate
+        );
+
 
         console.log(
             "🔗 Certificate URL:",
@@ -946,11 +1163,12 @@ function renderCertificates(data) {
         );
 
 
-        // ==================================================
-        // CERTIFICATE LINK
-        // ==================================================
+        // ========================================
+        // LINK
+        // ========================================
 
         let certificateLinkHTML = "";
+
 
         if (certificateURL) {
 
@@ -982,9 +1200,9 @@ function renderCertificates(data) {
         }
 
 
-        // ==================================================
-        // CARD HTML
-        // ==================================================
+        // ========================================
+        // CARD
+        // ========================================
 
         card.innerHTML = `
 
@@ -1007,11 +1225,17 @@ function renderCertificates(data) {
                 </h3>
 
 
-                <p>
-                    ${escapeHTML(
-                        issuingOrganization
-                    )}
-                </p>
+                ${
+                    organization
+                        ? `
+                            <p>
+                                ${escapeHTML(
+                                    organization
+                                )}
+                            </p>
+                        `
+                        : ""
+                }
 
 
                 ${
@@ -1034,9 +1258,9 @@ function renderCertificates(data) {
         `;
 
 
-        // ==================================================
-        // DOUBLE CLICK → OPEN CERTIFICATE
-        // ==================================================
+        // ========================================
+        // DOUBLE CLICK
+        // ========================================
 
         if (certificateURL) {
 
@@ -1047,16 +1271,6 @@ function renderCertificates(data) {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    console.log(
-                        "🖱️ Certificate double-clicked"
-                    );
-
-                    console.log(
-                        "🔗 Opening:",
-                        certificateURL
-                    );
-
-
                     window.open(
                         certificateURL,
                         "_blank"
@@ -1066,9 +1280,8 @@ function renderCertificates(data) {
             );
 
 
-            // Show that card is clickable
-
-            card.style.cursor = "pointer";
+            card.style.cursor =
+                "pointer";
 
             card.title =
                 "Double-click to open certificate";
@@ -1076,11 +1289,12 @@ function renderCertificates(data) {
         }
 
 
-        // ==================================================
-        // ADD CARD TO PAGE
-        // ==================================================
-
         container.appendChild(card);
+
+
+        console.log(
+            `📜 Certificate ${index + 1} rendered`
+        );
 
     });
 
@@ -1090,8 +1304,105 @@ function renderCertificates(data) {
     );
 
 }
+
+
 // ==================================================
-// UTILITY FUNCTIONS
+// DATE FORMAT
+// ==================================================
+
+function formatDate(value) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    let dateString =
+        String(value).trim();
+
+
+    try {
+
+        // DD-MM-YYYY
+
+        if (
+            /^\d{2}-\d{2}-\d{4}$/.test(
+                dateString
+            )
+        ) {
+
+            const parts =
+                dateString.split("-");
+
+            const date =
+                new Date(
+                    Number(parts[2]),
+                    Number(parts[1]) - 1,
+                    Number(parts[0])
+                );
+
+
+            return date.toLocaleDateString(
+                "en-GB",
+                {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+        }
+
+
+        // YYYY-MM-DD
+
+        if (
+            /^\d{4}-\d{2}-\d{2}$/.test(
+                dateString
+            )
+        ) {
+
+            const parts =
+                dateString.split("-");
+
+            const date =
+                new Date(
+                    Number(parts[0]),
+                    Number(parts[1]) - 1,
+                    Number(parts[2])
+                );
+
+
+            return date.toLocaleDateString(
+                "en-GB",
+                {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+        }
+
+
+        return dateString;
+
+    } catch (error) {
+
+        console.warn(
+            "⚠️ Date formatting failed:",
+            error
+        );
+
+        return dateString;
+
+    }
+
+}
+
+
+// ==================================================
+// SET TEXT
 // ==================================================
 
 function setText(id, value) {
@@ -1099,47 +1410,101 @@ function setText(id, value) {
     const element =
         document.getElementById(id);
 
-    if (!element ||
+
+    if (
+        !element ||
         value === null ||
-        value === undefined) {
+        value === undefined
+    ) {
         return;
     }
 
-    element.textContent = value;
+
+    element.textContent =
+        value;
 
 }
 
+
+// ==================================================
+// SET LINK
+// ==================================================
 
 function setLink(id, url) {
 
     const element =
         document.getElementById(id);
 
-    if (!element || !url) {
+
+    if (
+        !element ||
+        !url
+    ) {
         return;
     }
 
-    element.href = url;
+
+    element.href =
+        url;
+
+
+    if (
+        !url.startsWith("mailto:")
+    ) {
+
+        element.target =
+            "_blank";
+
+        element.rel =
+            "noopener noreferrer";
+
+    }
 
 }
 
+
+// ==================================================
+// ESCAPE HTML
+// ==================================================
 
 function escapeHTML(value) {
 
-    if (value === null ||
-        value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
         return "";
     }
 
+
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
+
+// ==================================================
+// ESCAPE ATTRIBUTE
+// ==================================================
 
 function escapeAttribute(value) {
 
@@ -1147,9 +1512,16 @@ function escapeAttribute(value) {
         return "#";
     }
 
+
     return String(value)
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
@@ -1160,98 +1532,142 @@ function escapeAttribute(value) {
 
 function hideLoader() {
 
-    const loader = document.getElementById("loading-screen");
+    const loader =
+        document.getElementById(
+            "loading-screen"
+        );
+
 
     if (!loader) {
-        console.warn("⚠️ Loading screen not found");
+
+        console.warn(
+            "⚠️ Loading screen not found"
+        );
+
         return;
     }
 
-    console.log("🔓 Hiding loading screen...");
 
-    loader.classList.add("loaded");
+    console.log(
+        "🔓 Hiding loading screen..."
+    );
+
+
+    loader.classList.add(
+        "loaded"
+    );
+
 
     setTimeout(() => {
-        loader.style.display = "none";
+
+        loader.style.display =
+            "none";
+
     }, 700);
+
 }
+
+
 // ==================================================
 // DARK / LIGHT MODE
 // ==================================================
 
-const themeToggle =
-    document.getElementById("theme-toggle");
+function initializeTheme() {
+
+    const themeToggle =
+        document.getElementById(
+            "theme-toggle"
+        );
 
 
-// Load saved theme
-const savedTheme =
-    localStorage.getItem("portfolio-theme");
+    // ========================================
+    // LOAD SAVED THEME
+    // ========================================
 
+    const savedTheme =
+        localStorage.getItem(
+            "portfolio-theme"
+        );
 
-if (savedTheme === "light") {
-
-    document.body.classList.add(
-        "light-mode"
-    );
-
-}
-
-
-// Update button icon
-function updateThemeIcon() {
-
-    if (!themeToggle) return;
 
     if (
-        document.body.classList.contains(
-            "light-mode"
-        )
+        savedTheme === "light"
     ) {
 
-        themeToggle.textContent = "🌙";
-
-    } else {
-
-        themeToggle.textContent = "☀️";
+        document.body.classList.add(
+            "light-mode"
+        );
 
     }
 
-}
+
+    // ========================================
+    // UPDATE ICON
+    // ========================================
+
+    function updateThemeIcon() {
+
+        if (!themeToggle) {
+            return;
+        }
 
 
-// Initial icon
-updateThemeIcon();
-
-
-// Toggle theme
-if (themeToggle) {
-
-    themeToggle.addEventListener(
-        "click",
-        () => {
-
-            document.body.classList.toggle(
+        if (
+            document.body.classList.contains(
                 "light-mode"
-            );
+            )
+        ) {
+
+            themeToggle.textContent =
+                "🌙";
+
+        } else {
+
+            themeToggle.textContent =
+                "☀️";
+
+        }
+
+    }
 
 
-            const isLight =
-                document.body.classList.contains(
+    updateThemeIcon();
+
+
+    // ========================================
+    // TOGGLE
+    // ========================================
+
+    if (themeToggle) {
+
+        themeToggle.addEventListener(
+            "click",
+            () => {
+
+                document.body.classList.toggle(
                     "light-mode"
                 );
 
 
-            localStorage.setItem(
-                "portfolio-theme",
-                isLight
-                    ? "light"
-                    : "dark"
-            );
+                const isLight =
+                    document.body.classList.contains(
+                        "light-mode"
+                    );
 
 
-            updateThemeIcon();
+                localStorage.setItem(
+                    "portfolio-theme",
+                    isLight
+                        ? "light"
+                        : "dark"
+                );
 
-        }
-    );
+
+                updateThemeIcon();
+
+            }
+        );
+
+    }
 
 }
